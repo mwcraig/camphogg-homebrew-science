@@ -9,40 +9,22 @@ class Sextractor < Formula
   #depends_on 'openblas'
   depends_on 'atlas' # oh my
 
+  # Although MacOS ships with ATLAS, it doesn't include the LAPACK parts.
+
   def install
-    # ENV.j1  # if your formula's build system can't parallelize
+    # dstn couldn't get ATLAS to build shared libs, so forced SExtractor to link statically.
+    # This requires string-replacing in the Makefile.
 
     lib = "#{HOMEBREW_PREFIX}/lib"
     atlas = "#{lib}/libatlas.a #{lib}/liblapack.a #{lib}/libcblas.a"
-    # ENV['ATLAS_LIB'] = atlas  # Nope, doesn't work
 
     system "./configure", "--disable-debug", "--disable-dependency-tracking",
                           "--prefix=#{prefix}"
-    
-    # it's not so easy...
-    #inreplace "src/Makefile",
-    #  "ATLAS_LIB =  -llapack -lptcblas -lcblas -latlas",
-    #  "ATLAS_LIB = #{atlas}"
     inreplace "src/Makefile",
       "-llapack -lptcblas -lcblas -latlas",
       "#{atlas}"
 
-
-    system "make install" # if this fails, try separate make/make install steps
+    system "make install"
   end
 end
 
-
-# ./configure --with-atlas-incdir=/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/Headers --with-atlas=/usr
-
-# --with-atlas=/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A
-# checking for clapack_dpotrf in -llapack... no
-# checking for cblas_dgemm in -lcblas... yes
-# checking for clapack_dpotrf in -llapack... no
-# checking for cblas_dgemm in -lcblas... yes
-# checking for clapack_dpotrf in -llapack... no
-# checking for cblas_dgemm in -lcblas... yes
-# checking for clapack_dpotrf in -llapack... no
-# checking for cblas_dgemm in -lcblas... yes
-# checking for clapack_dpotrf in -llapack... no
-# checking for cblas_dgemm in -lcblas... yes
