@@ -31,6 +31,7 @@ class Sextractor < Formula
 
   def install
     system "autoconf"
+    system "autoheader"
     system "./configure", "--prefix=#{prefix}", "--enable-accelerate"
     system "make"
     system "make", "check" if build.with? "check"
